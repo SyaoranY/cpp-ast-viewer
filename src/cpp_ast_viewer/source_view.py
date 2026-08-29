@@ -1,14 +1,9 @@
-from PySide6.QtWidgets import (
-  QWidget,
-  QVBoxLayout,
-  QPlainTextEdit
-) 
-
+import logging
+from PySide6.QtWidgets import QPlainTextEdit
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QTextDocument, QTextCursor, QMouseEvent
 from clang.cindex import Cursor, SourceLocation
 
-import logging
 
 logger = logging.getLogger(__name__)
 

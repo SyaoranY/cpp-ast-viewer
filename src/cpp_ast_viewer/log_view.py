@@ -1,11 +1,7 @@
 import logging
-
-from PySide6.QtWidgets import (
-  QWidget,
-  QPlainTextEdit
-) 
-
+from PySide6.QtWidgets import QPlainTextEdit
 from PySide6.QtCore import QObject, Signal
+
 
 class LogEmitter(QObject):
   message = Signal(str)

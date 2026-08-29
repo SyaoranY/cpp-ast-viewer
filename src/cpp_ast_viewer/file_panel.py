@@ -1,18 +1,11 @@
-from PySide6.QtWidgets import (
-  QWidget,
-  QVBoxLayout,
-  QLineEdit,
-  QTreeView
-) 
-
-from PySide6.QtCore import Qt, QSortFilterProxyModel, Signal
-from PySide6.QtGui import QStandardItem, QStandardItemModel
-
 import os
 import logging
 from pathlib import Path
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLineEdit, QTreeView) 
+from PySide6.QtCore import Qt, Signal, QSortFilterProxyModel
+from PySide6.QtGui import QStandardItem, QStandardItemModel
+from cpp_ast_viewer.ast_parser import AstParser
 
-from ast_parser import AstParser
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cpp-ast-viewer"
+version = "0.1.0"
+description = "An interactive C++ AST viewer built with Python, PySide6, and libclang."
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "PySide6",
+    "libclang-ng",
+]
+
+[project.scripts]
+cpp-ast-viewer = "cpp_ast_viewer.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

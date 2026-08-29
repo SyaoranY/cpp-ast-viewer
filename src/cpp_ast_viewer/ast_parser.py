@@ -1,11 +1,11 @@
-from compile_command import CompileCommands
-import clang.cindex
+from clang import cindex
 from pathlib import Path
+from cpp_ast_viewer.compile_command import CompileCommands
 
 class AstParser:
   def __init__(self, compile_commands_json_path):
     self.compile_commands = CompileCommands(compile_commands_json_path).compile_commands
-    self.index = clang.cindex.Index.create()
+    self.index = cindex.Index.create()
 
   def GetTuInfos(self):
     result = {}

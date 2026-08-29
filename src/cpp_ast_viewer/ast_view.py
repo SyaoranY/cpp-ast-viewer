@@ -1,3 +1,7 @@
+import logging
+from pathlib import Path
+from clang.cindex import Cursor
+
 from PySide6.QtWidgets import (
   QWidget,
   QTreeView,
@@ -6,12 +10,8 @@ from PySide6.QtWidgets import (
   QVBoxLayout
 ) 
 
-from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtCore import Qt, Signal
-
-from pathlib import Path
-import logging
-from clang.cindex import Cursor
+from PySide6.QtGui import QStandardItem, QStandardItemModel
 
 logger = logging.getLogger(__name__)
 

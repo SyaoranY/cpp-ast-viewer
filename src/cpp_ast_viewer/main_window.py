@@ -1,20 +1,11 @@
 import logging
 
-from PySide6.QtWidgets import (
-  QMainWindow,
-  QSplitter,
-  QFileDialog
-)
-from PySide6.QtCore import (
-  Qt,
-  Signal
-)
-from PySide6.QtGui import QAction
-
-from file_panel import FilePanel
-from source_view import SourceView
-from ast_view import AstView
-from log_view import LogView, QtLogHandler
+from PySide6.QtWidgets import (QMainWindow, QSplitter, QFileDialog)
+from PySide6.QtCore import Qt
+from cpp_ast_viewer.file_panel import FilePanel
+from cpp_ast_viewer.source_view import SourceView
+from cpp_ast_viewer.ast_view import AstView
+from cpp_ast_viewer.log_view import LogView, QtLogHandler
 
 class MainWindow(QMainWindow):
   def __init__(self):
