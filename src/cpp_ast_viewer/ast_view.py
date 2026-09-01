@@ -20,16 +20,16 @@ class AstTreeView(QTreeView):
   def __init__(self):
     super().__init__()
     self.setEditTriggers(self.EditTrigger.NoEditTriggers)
-    self.clicked.connect(self._on_clicked)
     self.model = QStandardItemModel()
     self.model.setHorizontalHeaderLabels(["AST"])
     self.setModel(self.model)
+    self.clicked.connect(self._on_clicked)
 
-  def load_ast(self, tu, file_path):
+  def show_ast(self, tu, file_path):
     self.model.clear()
     self.model.setHorizontalHeaderLabels(["AST"])
     root = self.model.invisibleRootItem()
-    self._add_cursor(tu.cursor, root, Path(file_path).resolve())
+    self._add_cursor(tu.cursor, root, file_path)
 
   def _add_cursor(self, cursor : Cursor, parent_item, file_path):
     location_file = cursor.location.file
@@ -128,8 +128,8 @@ class AstView(QWidget):
 
     self.ast_tree_view.cursor_selected.connect(self._on_cursor_selected)
 
-  def load_ast(self, tu, file_path):
-    self.ast_tree_view.load_ast(tu, file_path)
+  def show_ast(self, tu, file_path):
+    self.ast_tree_view.show_ast(tu, file_path)
     self.ast_details_view.clear()
 
   def select_at(self, line, column):

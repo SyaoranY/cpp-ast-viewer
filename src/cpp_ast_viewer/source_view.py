@@ -21,12 +21,12 @@ class SourceView(QPlainTextEdit):
     column = cursor.positionInBlock() + 1
     self.position_clicked.emit(line, column)
 
-  def load_file(self, path):
+  def show_source_code(self, path):
     try:
       with open(path, "r", encoding="utf-8", errors="replace",) as f:
         self.setPlainText(f.read())
-    except OSError as e:
-      logger.exception("Failed to open file: %s", path)
+    except Exception as e:
+      logger.exception("Failed to open file: %s", str(path))
 
   def highlight_cursor(self, cursor : Cursor):
     start : SourceLocation = cursor.extent.start
