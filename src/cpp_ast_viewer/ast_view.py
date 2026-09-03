@@ -6,16 +6,10 @@ from enum import Enum, auto
 
 from cpp_ast_viewer.ast_details_view import AstDetailsView
 
-from PySide6.QtWidgets import (
-  QWidget,
-  QTreeView,
-  QPlainTextEdit,
-  QSplitter,
-  QVBoxLayout
-) 
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QStandardItem, QStandardItemModel
+from PySide6.QtWidgets import (QWidget, QTreeView, QSplitter, QVBoxLayout)
+
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +74,7 @@ class AstTreeView(QTreeView):
 
   def select_at(self, path, line, column):
     cursor = self._get_cursor_at(path, line, column) 
+
     # TODO
     return cursor
     # item = self.find_cursor_item(path, line, column) # TODO lazy load cursor
@@ -91,11 +86,10 @@ class AstTreeView(QTreeView):
     # self.scrollTo(index)
     # return item.data().cursor
 
-  def _get_cursor_at(self, path, line, column):
+  def _get_cursor_at(self, path, line, column) -> Cursor:
     tu = self.model.invisibleRootItem().data()
     location = tu.get_location(str(path), (line, column))
     cursor = Cursor.from_location(tu, location)
-    logger.debug(f"{cursor.kind} {cursor.spelling} {cursor.location.line} {cursor.location.column}")
     return cursor
 
   def _expand_parents(self, index):

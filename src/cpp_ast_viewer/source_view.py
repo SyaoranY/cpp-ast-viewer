@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide6.QtWidgets import QPlainTextEdit
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QTextDocument, QTextCursor, QMouseEvent
-from clang.cindex import Cursor, SourceLocation
+from clang.cindex import Cursor, SourceLocation, CursorKind
 
 
 logger = logging.getLogger(__name__)
@@ -30,8 +30,13 @@ class SourceView(QPlainTextEdit):
       logger.exception("Failed to open file: %s", str(path))
 
   def highlight_cursor(self, cursor : Cursor):
+    if cursor.kind == CursorKind.NO_DECL_FOUND:
+      return
     start : SourceLocation = cursor.extent.start
     end : SourceLocation = cursor.extent.end
+
+    if start.file is None or end.file is None or start.line <= 0 or end.line <= 0:
+      return
 
     document : QTextDocument = self.document()
 
