@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from PySide6.QtWidgets import QPlainTextEdit
 from PySide6.QtCore import QObject, Signal
 
@@ -30,6 +31,10 @@ class LogView(QPlainTextEdit):
         log_level = logging.DEBUG,
         slot = self._log
     )
+
+  def new_session(self, title="Reload"):
+    now = datetime.now().strftime("%H:%M:%S")
+    self.appendPlainText(f"\n{'=' * 30} {title} [{now}] {'=' * 30}\n")
 
   def _log(self, message : str):
     self.appendPlainText(message)

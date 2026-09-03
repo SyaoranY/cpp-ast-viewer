@@ -18,11 +18,28 @@ class AstParser:
     self.index = cindex.Index.create()
     self.compile_database = CompileDatabase(compile_commands_json)
 
-  def GetTuInfos(self) -> list[AstTuInfo]:
+  def get_tu_infos(self) -> list[AstTuInfo]:
     result = []
     for item in self.compile_database.arguments:
       tu = self.index.parse(str(item.source), args=item.args)
       includes = [Path(include.include.name).resolve() for include in tu.get_includes()]
-      includes = sorted(set(includes))
+      includes = list(set(includes))
+      includes.sort(key=lambda header: self._header_sort_key(item.source, header))
       result.append(AstTuInfo(source=item.source, tu=tu, includes=includes))
     return result
+
+  def _header_sort_key(self, source_path: Path, header_path: Path):
+    common = self._common_path_length(source_path.parent, header_path.parent)
+    remaining = header_path.parts[common:]
+    build_priority = 1 if "build" in remaining else 0
+    return (-common, build_priority, header_path)
+
+  def _common_path_length(self, a: Path, b: Path) -> int:
+    a_parts = a.resolve().parts
+    b_parts = b.resolve().parts
+    common = 0
+    for x, y in zip(a_parts, b_parts):
+      if x != y:
+        break
+      common += 1
+    return common

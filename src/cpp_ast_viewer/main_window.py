@@ -26,6 +26,9 @@ class MainWindow(QMainWindow):
     file_path, _ = QFileDialog.getOpenFileName(self, "Select compile_command.json", "", file_filter)
     if not file_path:
       return
+    self._log_view.new_session("Load compile_commands.json")
+    self._source_view.reset_view()
+    self._ast_view.reset_view()
     self._file_panel.load_compile_command_json(Path(file_path))
 
   def _init_main_component(self):
@@ -34,8 +37,9 @@ class MainWindow(QMainWindow):
     self._ast_view = AstView()
     self._log_view = LogView()
 
+    self._file_panel.tu_selected.connect(self._on_tu_selected)
     self._file_panel.file_selected.connect(self._on_file_selected)
-    self._ast_view.cursor_selected.connect(self._source_view.highlight_cursor)
+    self._ast_view.cursor_selected.connect(self._on_cursor_selected)
     self._source_view.position_clicked.connect(self._on_source_clicked)
 
     self._init_layout()
@@ -59,11 +63,22 @@ class MainWindow(QMainWindow):
     main_splitter.setStretchFactor(0, 4)
     main_splitter.setStretchFactor(1, 1)
 
+  def _on_tu_selected(self, tu):
+    self._ast_view.show_ast(tu)
+
   def _on_file_selected(self, tu, file_path):
     self._source_view.show_source_code(file_path)
-    self._ast_view.show_ast(tu, file_path)
+    self._ast_view.show_ast(tu)
 
-  def _on_source_clicked(self, line, column):
-    cursor = self._ast_view.select_at(line, column)
+  def _on_cursor_selected(self, cursor):
+    if cursor.location.file is None:
+      return
+    file_path = Path(cursor.location.file.name).resolve()
+    self._file_panel.select_file(file_path)
+    self._source_view.show_source_code(file_path)
+    self._source_view.highlight_cursor(cursor)
+
+  def _on_source_clicked(self, path, line, column):
+    cursor = self._ast_view.select_at(path, line, column)
     if cursor is not None:
       self._source_view.highlight_cursor(cursor)

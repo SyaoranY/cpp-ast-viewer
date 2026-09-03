@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from PySide6.QtWidgets import QPlainTextEdit
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QTextDocument, QTextCursor, QMouseEvent
@@ -8,22 +9,22 @@ from clang.cindex import Cursor, SourceLocation
 logger = logging.getLogger(__name__)
 
 class SourceView(QPlainTextEdit):
-  position_clicked = Signal(int, int)
+  position_clicked = Signal(Path, int, int)
   def __init__(self):
     super().__init__()
-    self.setReadOnly(True)
-    self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+    self.reset_view()
 
   def mousePressEvent(self, event : QMouseEvent):
     super().mousePressEvent(event)
     cursor = self.cursorForPosition(event.position().toPoint())
     line = cursor.blockNumber() + 1
     column = cursor.positionInBlock() + 1
-    self.position_clicked.emit(line, column)
+    self.position_clicked.emit(self._path, line, column)
 
   def show_source_code(self, path):
     try:
       with open(path, "r", encoding="utf-8", errors="replace",) as f:
+        self._path = path
         self.setPlainText(f.read())
     except Exception as e:
       logger.exception("Failed to open file: %s", str(path))
@@ -46,3 +47,9 @@ class SourceView(QPlainTextEdit):
 
     self.setTextCursor(text_cursor)
     self.ensureCursorVisible()
+
+  def reset_view(self):
+    self._path = None
+    self.clear()
+    self.setReadOnly(True)
+    self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
