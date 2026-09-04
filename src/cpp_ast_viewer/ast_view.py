@@ -101,10 +101,8 @@ class AstTreeView(QTreeView):
   def select_at(self, path, line, column):
     cursor = self._get_cursor_at(path, line, column) 
     cursor_path = self._get_cursor_path(cursor)
-    logger.debug(f"{cursor_path}")
     parent = self.model.invisibleRootItem().child(0)
     for cursor_part in cursor_path:
-      logger.debug(f"load children at {cursor_part} {parent.data().cursor}")
       child = self._load_children_at(cursor_part, parent)
       parent = child
     self._expand_parents(parent.index())
@@ -140,27 +138,6 @@ class AstTreeView(QTreeView):
     while parent.isValid():
       self.expand(parent)
       parent = parent.parent()
-
-  def find_cursor_item(self, path, line, column):
-    root = self.model.invisibleRootItem()
-    return self._find_cursor_item(root, line, column)
-
-  def _find_cursor_item(self, parent, line, column):
-    best_item = None
-    for row in range(parent.rowCount()):
-      item = parent.child(row)
-      cursor = item.data()
-      start = cursor.extent.start
-      end = cursor.extent.end
-      pos = (line, column)
-      start_pos = (start.line, start.column)
-      end_pos = (end.line, end.column)
-      if start_pos <= pos <= end_pos:
-        best_item = item
-        child_item = self._find_cursor_item(item, line, column)
-        if child_item is not None:
-          best_item = child_item
-    return best_item
 
 
 class AstView(QWidget):
