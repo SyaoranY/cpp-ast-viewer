@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from clang.cindex import Cursor
+from clang.cindex import Cursor, TranslationUnit
 from dataclasses import dataclass
 from enum import Enum, auto
 
@@ -34,11 +34,33 @@ class AstTreeView(QTreeView):
     self.clicked.connect(self._on_clicked)
     self.expanded.connect(self._on_expanded)
 
+    self._parent_dict_cache: dict[TranslationUnit, dict[Cursor, Cursor]] = {}
+
   def reset_view(self):
     self.model.clear()
     self.model.setHorizontalHeaderLabels(["AST"])
 
+  def _set_tu(self, tu):
+    parent_dict = self._parent_dict_cache.get(tu)
+    if parent_dict is None:
+      self._parent_dict_cache[tu] = self._build_parent_dict(tu)
+
+  def _build_parent_dict(self, tu) -> dict[Cursor, Cursor]:
+    parent_dict : dict[Cursor, Cursor] = {}
+    root = tu.cursor  # root cursor not included in parent_dict
+    visited: set[Cursor] = {root}
+    def visit(parent : Cursor):
+      for child in parent.get_children():
+        if child in visited:
+          continue
+        visited.add(child)
+        parent_dict[child] = parent
+        visit(child)
+    visit(root)
+    return parent_dict
+
   def show_ast(self, tu):
+    self._set_tu(tu)
     self.reset_view()
     root = self.model.invisibleRootItem()
     root.setData(tu)
@@ -65,26 +87,47 @@ class AstTreeView(QTreeView):
 
   def _on_expanded(self, index):
     item = self.model.itemFromIndex(index)
+    self._load_children(item)
+
+  # lazy load
+  def _load_children(self, item):
     cursor_data : CursorData = item.data()
     if cursor_data.type == ItemType.UNEXPANDED:
       item.removeRows(0, item.rowCount())
-    for child in cursor_data.cursor.get_children():
-      self._add_cursor(child, item)
-    cursor_data.type == ItemType.EXPANDED
+      for child in cursor_data.cursor.get_children():
+        self._add_cursor(child, item)
+      cursor_data.type = ItemType.EXPANDED
 
   def select_at(self, path, line, column):
     cursor = self._get_cursor_at(path, line, column) 
-
-    # TODO
+    cursor_path = self._get_cursor_path(cursor)
+    logger.debug(f"{cursor_path}")
+    parent = self.model.invisibleRootItem().child(0)
+    for cursor_part in cursor_path:
+      logger.debug(f"load children at {cursor_part} {parent.data().cursor}")
+      child = self._load_children_at(cursor_part, parent)
+      parent = child
+    self._expand_parents(parent.index())
+    self.setCurrentIndex(parent.index())
+    self.scrollTo(parent.index())
     return cursor
-    # item = self.find_cursor_item(path, line, column) # TODO lazy load cursor
-    # if item is None:
-    #   return None
-    # index = item.index()
-    # self._expand_parents(index)
-    # self.setCurrentIndex(index)
-    # self.scrollTo(index)
-    # return item.data().cursor
+
+  def _get_cursor_path(self, cursor : Cursor) -> list[Cursor]:
+    cursor_path = []
+    current = cursor
+    tu = self.model.invisibleRootItem().data()
+    while current in self._parent_dict_cache[tu]:
+      cursor_path.append(current)
+      current = self._parent_dict_cache[tu][current]
+    cursor_path.reverse()
+    return cursor_path
+
+  def _load_children_at(self, cursor, parent):
+    self._load_children(parent) # lazy load item
+    for row in range(parent.rowCount()):
+      if parent.child(row).data().cursor == cursor:
+        return parent.child(row)
+    raise ValueError("not find child")
 
   def _get_cursor_at(self, path, line, column) -> Cursor:
     tu = self.model.invisibleRootItem().data()
