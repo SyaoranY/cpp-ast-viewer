@@ -54,16 +54,17 @@ class AstTreeView(QTreeView):
         parent_dict: dict[Cursor, Cursor] = {}
         root = tu.cursor  # root cursor not included in parent_dict
         visited: set[Cursor] = {root}
+        stack = [root]
 
-        def visit(parent: Cursor):
+        while stack:
+            parent = stack.pop()
             for child in parent.get_children():
                 if child in visited:
                     continue
                 visited.add(child)
                 parent_dict[child] = parent
-                visit(child)
+                stack.append(child)
 
-        visit(root)
         return parent_dict
 
     def show_ast(self, tu):
