@@ -1,61 +1,68 @@
 import logging
 from pathlib import Path
-from PySide6.QtWidgets import QPlainTextEdit
-from PySide6.QtCore import Signal
-from PySide6.QtGui import QTextDocument, QTextCursor, QMouseEvent
-from clang.cindex import Cursor, SourceLocation, CursorKind
 
+from clang.cindex import Cursor, CursorKind, SourceLocation
+from PySide6.QtCore import Signal
+from PySide6.QtGui import QMouseEvent, QTextCursor, QTextDocument
+from PySide6.QtWidgets import QPlainTextEdit
 
 logger = logging.getLogger(__name__)
 
+
 class SourceView(QPlainTextEdit):
-  position_clicked = Signal(Path, int, int)
-  def __init__(self):
-    super().__init__()
-    self.reset_all()
+    position_clicked = Signal(Path, int, int)
 
-  def reset_all(self):
-    self._path = None
-    self.clear()
-    self.setReadOnly(True)
-    self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+    def __init__(self):
+        super().__init__()
+        self.reset_all()
 
-  def mousePressEvent(self, event : QMouseEvent):
-    super().mousePressEvent(event)
-    if self._path is not None:
-      cursor = self.cursorForPosition(event.position().toPoint())
-      line = cursor.blockNumber() + 1
-      column = cursor.positionInBlock() + 1
-      self.position_clicked.emit(self._path, line, column)
+    def reset_all(self):
+        self._path = None
+        self.clear()
+        self.setReadOnly(True)
+        self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
 
-  def show_source_code(self, path):
-    try:
-      with open(path, "r", encoding="utf-8", errors="replace",) as f:
-        self._path = path
-        self.setPlainText(f.read())
-    except Exception as e:
-      logger.exception("Failed to open file: %s", str(path))
+    def mousePressEvent(self, event: QMouseEvent):
+        super().mousePressEvent(event)
+        if self._path is not None:
+            cursor = self.cursorForPosition(event.position().toPoint())
+            line = cursor.blockNumber() + 1
+            column = cursor.positionInBlock() + 1
+            self.position_clicked.emit(self._path, line, column)
 
-  def highlight_cursor(self, cursor : Cursor):
-    if cursor.kind == CursorKind.NO_DECL_FOUND:
-      return
-    start : SourceLocation = cursor.extent.start
-    end : SourceLocation = cursor.extent.end
+    def show_source_code(self, path):
+        try:
+            with open(
+                path,
+                "r",
+                encoding="utf-8",
+                errors="replace",
+            ) as f:
+                self._path = path
+                self.setPlainText(f.read())
+        except Exception:
+            logger.exception("Failed to open file: %s", str(path))
 
-    if start.file is None or end.file is None or start.line <= 0 or end.line <= 0:
-      return
+    def highlight_cursor(self, cursor: Cursor):
+        if cursor.kind == CursorKind.NO_DECL_FOUND:
+            return
+        start: SourceLocation = cursor.extent.start
+        end: SourceLocation = cursor.extent.end
 
-    document : QTextDocument = self.document()
+        if start.file is None or end.file is None or start.line <= 0 or end.line <= 0:
+            return
 
-    start_block = document.findBlockByNumber(start.line - 1)
-    end_block = document.findBlockByNumber(end.line - 1)
+        document: QTextDocument = self.document()
 
-    start_pos = start_block.position() + start.column - 1
-    end_pos = end_block.position() + end.column - 1
+        start_block = document.findBlockByNumber(start.line - 1)
+        end_block = document.findBlockByNumber(end.line - 1)
 
-    text_cursor = QTextCursor(document)
-    text_cursor.setPosition(start_pos)
-    text_cursor.setPosition(end_pos, QTextCursor.MoveMode.KeepAnchor)
+        start_pos = start_block.position() + start.column - 1
+        end_pos = end_block.position() + end.column - 1
 
-    self.setTextCursor(text_cursor)
-    self.ensureCursorVisible()
+        text_cursor = QTextCursor(document)
+        text_cursor.setPosition(start_pos)
+        text_cursor.setPosition(end_pos, QTextCursor.MoveMode.KeepAnchor)
+
+        self.setTextCursor(text_cursor)
+        self.ensureCursorVisible()
