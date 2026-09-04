@@ -15,13 +15,13 @@ class AstTuInfo:
 
 class AstParser:
   def __init__(self, compile_commands_json : Path):
-    self.index = cindex.Index.create()
-    self.compile_database = CompileDatabase(compile_commands_json)
+    self._index = cindex.Index.create()
+    self._compile_database = CompileDatabase(compile_commands_json)
 
   def get_tu_infos(self) -> list[AstTuInfo]:
     result = []
-    for item in self.compile_database.arguments:
-      tu = self.index.parse(str(item.source), args=item.args)
+    for item in self._compile_database.arguments:
+      tu = self._index.parse(str(item.source), args=item.args)
       includes = [Path(include.include.name).resolve() for include in tu.get_includes()]
       includes = list(set(includes))
       includes.sort(key=lambda header: self._header_sort_key(item.source, header))

@@ -28,17 +28,17 @@ class AstTreeView(QTreeView):
   def __init__(self):
     super().__init__()
     self.setEditTriggers(self.EditTrigger.NoEditTriggers)
-    self.model = QStandardItemModel()
-    self.model.setHorizontalHeaderLabels(["AST"])
-    self.setModel(self.model)
+    self._model = QStandardItemModel()
+    self._model.setHorizontalHeaderLabels(["AST"])
+    self.setModel(self._model)
     self.clicked.connect(self._on_clicked)
     self.expanded.connect(self._on_expanded)
 
     self._parent_dict_cache: dict[TranslationUnit, dict[Cursor, Cursor]] = {}
 
   def reset_view(self):
-    self.model.clear()
-    self.model.setHorizontalHeaderLabels(["AST"])
+    self._model.clear()
+    self._model.setHorizontalHeaderLabels(["AST"])
 
   def _set_tu(self, tu):
     parent_dict = self._parent_dict_cache.get(tu)
@@ -62,7 +62,7 @@ class AstTreeView(QTreeView):
   def show_ast(self, tu):
     self._set_tu(tu)
     self.reset_view()
-    root = self.model.invisibleRootItem()
+    root = self._model.invisibleRootItem()
     root.setData(tu)
     self._add_cursor(tu.cursor, root)
 
@@ -80,13 +80,13 @@ class AstTreeView(QTreeView):
       item.setData(CursorData(cursor=cursor, type=ItemType.LEAF))
 
   def _on_clicked(self, index):
-    item = self.model.itemFromIndex(index)
+    item = self._model.itemFromIndex(index)
     cursor = item.data().cursor
     if cursor is not None:
       self.cursor_selected.emit(cursor)
 
   def _on_expanded(self, index):
-    item = self.model.itemFromIndex(index)
+    item = self._model.itemFromIndex(index)
     self._load_children(item)
 
   # lazy load
@@ -101,7 +101,7 @@ class AstTreeView(QTreeView):
   def select_at(self, path, line, column):
     cursor = self._get_cursor_at(path, line, column) 
     cursor_path = self._get_cursor_path(cursor)
-    parent = self.model.invisibleRootItem().child(0)
+    parent = self._model.invisibleRootItem().child(0)
     for cursor_part in cursor_path:
       child = self._load_children_at(cursor_part, parent)
       parent = child
@@ -113,7 +113,7 @@ class AstTreeView(QTreeView):
   def _get_cursor_path(self, cursor : Cursor) -> list[Cursor]:
     cursor_path = []
     current = cursor
-    tu = self.model.invisibleRootItem().data()
+    tu = self._model.invisibleRootItem().data()
     while current in self._parent_dict_cache[tu]:
       cursor_path.append(current)
       current = self._parent_dict_cache[tu][current]
@@ -128,7 +128,7 @@ class AstTreeView(QTreeView):
     raise ValueError("not find child")
 
   def _get_cursor_at(self, path, line, column) -> Cursor:
-    tu = self.model.invisibleRootItem().data()
+    tu = self._model.invisibleRootItem().data()
     location = tu.get_location(str(path), (line, column))
     cursor = Cursor.from_location(tu, location)
     return cursor

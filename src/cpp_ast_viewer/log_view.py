@@ -11,14 +11,14 @@ class LogHandler(logging.Handler):
   def __init__(self, fmt, datefmt, log_level, slot):
     super().__init__()
     self.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
-    self.emitter = LogEmitter()
-    self.emitter.message.connect(slot)
+    self._emitter = LogEmitter()
+    self._emitter.message.connect(slot)
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
     root_logger.addHandler(self)
 
   def emit(self, record):
-    self.emitter.message.emit(self.format(record))
+    self._emitter.message.emit(self.format(record))
 
 class LogView(QPlainTextEdit):
   def __init__(self):

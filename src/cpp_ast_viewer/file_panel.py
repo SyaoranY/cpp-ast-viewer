@@ -87,8 +87,8 @@ class FilePanel(QWidget):
 
   def load_compile_command_json(self, file_path : Path):
     logger.debug(f"load compile_command.json {file_path}")
-    self.ast_parser = AstParser(file_path)
-    tu_infos = self.ast_parser.get_tu_infos()
+    ast_parser = AstParser(file_path)
+    tu_infos = ast_parser.get_tu_infos()
     self._load_transition_units(tu_infos)
 
   @staticmethod
