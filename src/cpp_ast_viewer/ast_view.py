@@ -18,7 +18,7 @@ class ItemType(Enum):
     UNEXPANDED = auto()
 
 
-@dataclass
+@dataclass(slots=True)
 class CursorData:
     cursor: Cursor
     type: ItemType

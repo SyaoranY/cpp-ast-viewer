@@ -9,7 +9,7 @@ from cpp_ast_viewer.compile_database import CompileDatabase
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class AstTuInfo:
     source: Path
     tu: cindex.TranslationUnit
