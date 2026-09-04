@@ -78,8 +78,8 @@ class AstTreeView(QTreeView):
         item = QStandardItem(text)
         parent_item.appendRow(item)
         # add dummy child item
-        children = list(cursor.get_children())
-        if children:
+        has_children = next(cursor.get_children(), None) is not None
+        if has_children:
             dummy = QStandardItem()
             item.appendRow(dummy)
             item.setData(CursorData(cursor=cursor, type=ItemType.UNEXPANDED))
