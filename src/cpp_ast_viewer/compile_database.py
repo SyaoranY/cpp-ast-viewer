@@ -1,4 +1,5 @@
 import json
+import shlex
 import logging
 from pathlib import Path
 from dataclasses import dataclass
@@ -38,11 +39,11 @@ class CompileDatabase:
     return CompileArguments(source=normalized_source_path, args=normalized_arguments)
 
   @staticmethod
-  def _normalize_arguments(compilation_db_item):
-    if 'command' in compilation_db_item:
-      arguments = compilation_db_item['command'].split()[1:]
-    elif 'arguments' in compilation_db_item:
+  def _normalize_arguments(compilation_db_item):    
+    if 'arguments' in compilation_db_item:
       arguments = compilation_db_item['arguments'][1:]
+    elif 'command' in compilation_db_item:
+      arguments = shlex.split(compilation_db_item["command"])[1:]
     else:
       raise ValueError("Invalid compile_commands.json: missing 'arguments' or 'command'")
 
