@@ -36,9 +36,12 @@ class AstTreeView(QTreeView):
 
     self._parent_dict_cache: dict[TranslationUnit, dict[Cursor, Cursor]] = {}
 
+  def reset_all(self):
+    self._parent_dict_cache = {}
+    self._model.removeRows(0, self._model.rowCount())
+
   def reset_view(self):
-    self._model.clear()
-    self._model.setHorizontalHeaderLabels(["AST"])
+    self._model.removeRows(0, self._model.rowCount())
 
   def _set_tu(self, tu):
     parent_dict = self._parent_dict_cache.get(tu)
@@ -156,13 +159,13 @@ class AstView(QWidget):
 
     self.ast_tree_view.cursor_selected.connect(self._on_cursor_selected)
 
-  def reset_view(self):
-    self.ast_tree_view.reset_view()
-    self.ast_details_view.reset_view()
+  def reset_all(self):
+    self.ast_tree_view.reset_all()
+    self.ast_details_view.reset_all()
 
   def show_ast(self, tu):
     self.ast_tree_view.show_ast(tu)
-    self.ast_details_view.reset_view()
+    self.ast_details_view.reset_all()
 
   def select_at(self, path, line, column):
     cursor = self.ast_tree_view.select_at(path, line, column)

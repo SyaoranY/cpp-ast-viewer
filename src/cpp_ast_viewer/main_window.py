@@ -1,4 +1,3 @@
-import logging
 from pathlib import Path
 from PySide6.QtWidgets import (QMainWindow, QSplitter, QFileDialog)
 from PySide6.QtCore import Qt
@@ -19,17 +18,7 @@ class MainWindow(QMainWindow):
     file_menu = menu_bar.addMenu("&File")
     load_action = file_menu.addAction("&Load compile_command.json")
     load_action.setShortcut(Qt.Key_Open)
-    load_action.triggered.connect(self._open_compile_command_json)
-
-  def _open_compile_command_json(self):
-    file_filter = "Compilation Database (compile_commands.json)"
-    file_path, _ = QFileDialog.getOpenFileName(self, "Select compile_command.json", "", file_filter)
-    if not file_path:
-      return
-    self._log_view.new_session("Load compile_commands.json")
-    self._source_view.reset_view()
-    self._ast_view.reset_view()
-    self._file_panel.load_compile_command_json(Path(file_path))
+    load_action.triggered.connect(self._load_new_compile_comands)
 
   def _init_main_component(self):
     self._file_panel = FilePanel()
@@ -37,12 +26,12 @@ class MainWindow(QMainWindow):
     self._ast_view = AstView()
     self._log_view = LogView()
 
+    self._init_layout()
+
     self._file_panel.tu_selected.connect(self._on_tu_selected)
     self._file_panel.file_selected.connect(self._on_file_selected)
     self._ast_view.cursor_selected.connect(self._on_cursor_selected)
     self._source_view.position_clicked.connect(self._on_source_clicked)
-
-    self._init_layout()
 
   def _init_layout(self):
     top_splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -62,6 +51,16 @@ class MainWindow(QMainWindow):
 
     main_splitter.setStretchFactor(0, 4)
     main_splitter.setStretchFactor(1, 1)
+
+  def _load_new_compile_comands(self):
+    file_filter = "Compilation Database (compile_commands.json)"
+    file_path, _ = QFileDialog.getOpenFileName(self, "Select compile_command.json", "", file_filter)
+    if not file_path:
+      return
+    self._log_view.new_session("Load compile_commands.json")
+    self._source_view.reset_all()
+    self._ast_view.reset_all()
+    self._file_panel.load_compile_command_json(Path(file_path))
 
   def _on_tu_selected(self, tu):
     self._ast_view.show_ast(tu)

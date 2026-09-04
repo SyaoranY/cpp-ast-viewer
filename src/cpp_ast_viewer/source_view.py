@@ -12,7 +12,13 @@ class SourceView(QPlainTextEdit):
   position_clicked = Signal(Path, int, int)
   def __init__(self):
     super().__init__()
-    self.reset_view()
+    self.reset_all()
+
+  def reset_all(self):
+    self._path = None
+    self.clear()
+    self.setReadOnly(True)
+    self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
 
   def mousePressEvent(self, event : QMouseEvent):
     super().mousePressEvent(event)
@@ -52,9 +58,3 @@ class SourceView(QPlainTextEdit):
 
     self.setTextCursor(text_cursor)
     self.ensureCursorVisible()
-
-  def reset_view(self):
-    self._path = None
-    self.clear()
-    self.setReadOnly(True)
-    self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)

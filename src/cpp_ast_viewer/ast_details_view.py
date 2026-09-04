@@ -24,7 +24,7 @@ class AstDetailsView(QTreeWidget):
   # Public interface
   # ============================================================
 
-  def reset_view(self):
+  def reset_all(self):
     self.clear()
 
   def show_cursor(self, cursor: Cursor):
