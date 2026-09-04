@@ -22,10 +22,11 @@ class SourceView(QPlainTextEdit):
 
   def mousePressEvent(self, event : QMouseEvent):
     super().mousePressEvent(event)
-    cursor = self.cursorForPosition(event.position().toPoint())
-    line = cursor.blockNumber() + 1
-    column = cursor.positionInBlock() + 1
-    self.position_clicked.emit(self._path, line, column)
+    if self._path is not None:
+      cursor = self.cursorForPosition(event.position().toPoint())
+      line = cursor.blockNumber() + 1
+      column = cursor.positionInBlock() + 1
+      self.position_clicked.emit(self._path, line, column)
 
   def show_source_code(self, path):
     try:
