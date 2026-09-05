@@ -24,12 +24,25 @@ class AstParser:
     def get_tu_infos(self) -> list[AstTuInfo]:
         result = []
         for item in self._compile_database.arguments:
+            logger.info("Parsing TU: %s", item.source)
             tu = self._index.parse(str(item.source), args=item.args)
+            self._print_tu_diagnostics(tu)
             includes = [Path(include.include.name).resolve() for include in tu.get_includes()]
             includes = list(set(includes))
             includes.sort(key=lambda header: self._header_sort_key(item.source, header))
             result.append(AstTuInfo(source=item.source, tu=tu, includes=includes))
         return result
+
+    def _print_tu_diagnostics(self, tu: cindex.TranslationUnit):
+        for diagnostic in tu.diagnostics:
+            if diagnostic.severity == diagnostic.Fatal:
+                logger.fatal("%s", diagnostic)
+            elif diagnostic.severity == diagnostic.Error:
+                logger.error("%s", diagnostic)
+            elif diagnostic.severity == diagnostic.Warning:
+                logger.warning("%s", diagnostic)
+            else:
+                logger.info("%s", diagnostic)
 
     def _header_sort_key(self, source_path: Path, header_path: Path):
         common = self._common_path_length(source_path.parent, header_path.parent)

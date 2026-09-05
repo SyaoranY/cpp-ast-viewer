@@ -36,7 +36,7 @@ class AstTreeView(QTreeView):
         self.clicked.connect(self._on_clicked)
         self.expanded.connect(self._on_expanded)
 
-        self._parent_dict_cache: dict[TranslationUnit, dict[Cursor, Cursor]] = {}
+        self._parent_dict_cache: dict[TranslationUnit, dict[int, Cursor]] = {}
 
     def reset_all(self):
         self._parent_dict_cache = {}
@@ -50,19 +50,19 @@ class AstTreeView(QTreeView):
         if parent_dict is None:
             self._parent_dict_cache[tu] = self._build_parent_dict(tu)
 
-    def _build_parent_dict(self, tu) -> dict[Cursor, Cursor]:
-        parent_dict: dict[Cursor, Cursor] = {}
+    def _build_parent_dict(self, tu) -> dict[int, Cursor]:
+        parent_dict: dict[int, Cursor] = {}
         root = tu.cursor  # root cursor not included in parent_dict
-        visited: set[Cursor] = {root}
+        visited: set[int] = {root.hash}
         stack = [root]
 
         while stack:
             parent = stack.pop()
             for child in parent.get_children():
-                if child in visited:
+                if child.hash in visited:
                     continue
-                visited.add(child)
-                parent_dict[child] = parent
+                visited.add(child.hash)
+                parent_dict[child.hash] = parent
                 stack.append(child)
 
         return parent_dict
@@ -122,9 +122,9 @@ class AstTreeView(QTreeView):
         cursor_path = []
         current = cursor
         tu = self._model.invisibleRootItem().data()
-        while current in self._parent_dict_cache[tu]:
+        while current.hash in self._parent_dict_cache[tu]:
             cursor_path.append(current)
-            current = self._parent_dict_cache[tu][current]
+            current = self._parent_dict_cache[tu][current.hash]
         cursor_path.reverse()
         return cursor_path
 
