@@ -56,11 +56,23 @@ class CompileDatabase:
         i = 0
         while i < len(arguments):
             if arguments[i] == "-o" or arguments[i] == "-c":
+                # skip -o foo.o or -c foo.cpp
                 i += 1
-            elif arguments[i].startswith("-I"):
+            elif arguments[i].startswith("-I") and len(arguments[i]) > 2:
+                # -Iinclude
                 include_path = arguments[i][2:]
                 normalized_include = str((working_dir / include_path).resolve())
-                result.append("-I" + normalized_include)
+                result.append(f"-I{normalized_include}")
+            elif arguments[i] == '-I':
+                # -I include
+                normalized_include = str((working_dir / arguments[i + 1]).resolve())
+                result.extend(['-I', normalized_include])
+                i += 1
+            elif arguments[i] in ("-isystem", "-iquote"):
+                # -isystem or -iquote
+                normalized_include = str((working_dir / arguments[i + 1]).resolve())
+                result.extend([arguments[i], normalized_include])
+                i += 1
             else:
                 result.append(arguments[i])
             i += 1
