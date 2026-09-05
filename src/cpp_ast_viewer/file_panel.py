@@ -163,11 +163,13 @@ class FilePanel(QWidget):
         # create source item
         source_item = QStandardItem(str(tu_info.source))
         source_item.setData(ModelItemData(NodeType.FILE, tu_info.source))
+        source_item.setToolTip(source_item.text())
         tu_item.appendRow(source_item)
         # create include items
         for include in tu_info.includes:
             include_item = QStandardItem(str(include))
             include_item.setData(ModelItemData(NodeType.FILE, include))
+            include_item.setToolTip(include_item.text())
             tu_item.appendRow(include_item)
 
     def _find_or_create_child(self, parent, child_name):

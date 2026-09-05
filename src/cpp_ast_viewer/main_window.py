@@ -51,8 +51,12 @@ class MainWindow(QMainWindow):
         top_splitter.setStretchFactor(1, 3)
         top_splitter.setStretchFactor(2, 3)
 
-        main_splitter.setStretchFactor(0, 4)
+        main_splitter.setStretchFactor(0, 6)
         main_splitter.setStretchFactor(1, 1)
+
+        self._file_panel.setMinimumWidth(220)
+        top_splitter.setSizes([250, 500, 400])
+        main_splitter.setSizes([700, 100])
 
     def _load_new_compile_comands(self):
         file_filter = "Compilation Database (compile_commands.json)"
