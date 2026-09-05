@@ -109,6 +109,15 @@ class AstTreeView(QTreeView):
     def select_at(self, path, line, column):
         cursor = self._get_cursor_at(path, line, column)
         cursor_path = self._get_cursor_path(cursor)
+
+        if not cursor_path:
+            logger.warning(
+                "Cursor not found in AST tree: kind=%s spelling=%s location=%s",
+                cursor.kind.name,
+                cursor.spelling,
+                cursor.location,
+            )
+
         parent = self._model.invisibleRootItem().child(0)
         for cursor_part in cursor_path:
             child = self._load_children_at(cursor_part, parent)
