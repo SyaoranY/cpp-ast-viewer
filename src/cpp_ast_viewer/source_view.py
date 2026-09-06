@@ -4,12 +4,12 @@ from pathlib import Path
 from clang.cindex import Cursor, CursorKind, SourceLocation
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QMouseEvent, QTextCursor, QTextDocument
-from PySide6.QtWidgets import QPlainTextEdit
+from PySide6.QtWidgets import QPlainTextEdit, QLabel, QVBoxLayout, QWidget, QSizePolicy
 
 logger = logging.getLogger(__name__)
 
 
-class SourceView(QPlainTextEdit):
+class SourceCodeEdit(QPlainTextEdit):
     position_clicked = Signal(Path, int, int)
 
     def __init__(self):
@@ -66,3 +66,38 @@ class SourceView(QPlainTextEdit):
 
         self.setTextCursor(text_cursor)
         self.ensureCursorVisible()
+
+class SourceView(QWidget):
+    position_clicked = Signal(Path, int, int)
+
+    def __init__(self):
+        super().__init__()
+        self._path_label = QLabel()
+        self._source_edit = SourceCodeEdit()
+
+        self._path_label.setContentsMargins(8, 4, 8, 4)
+        self._path_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        layout.addWidget(self._path_label)
+        layout.addWidget(self._source_edit)
+
+        self._source_edit.position_clicked.connect(self.position_clicked)
+
+        self.reset_all()
+
+    def reset_all(self):
+        self._path_label.clear()
+        self._source_edit.reset_all()
+
+    def show_source_code(self, path):
+        self._path_label.setText(str(path))
+        self._path_label.setToolTip(str(path))
+        self._source_edit.show_source_code(path)
+
+    def highlight_cursor(self, cursor: Cursor):
+        self._source_edit.highlight_cursor(cursor)
