@@ -38,7 +38,7 @@ class CompileDatabase:
         working_dir = Path(compilation_db_item["directory"])
         normalized_source_path = (working_dir / compilation_db_item["file"]).resolve()
         normalized_arguments = CompileDatabase._normalize_arguments(compilation_db_item)
-        logger.debug(f"{normalized_source_path} {normalized_arguments}")
+        logger.info("source: %s, normalized arguments: %s", normalized_source_path, normalized_arguments)
         return CompileArguments(source=normalized_source_path, args=normalized_arguments)
 
     @staticmethod
@@ -63,10 +63,10 @@ class CompileDatabase:
                 include_path = arguments[i][2:]
                 normalized_include = str((working_dir / include_path).resolve())
                 result.append(f"-I{normalized_include}")
-            elif arguments[i] == '-I':
+            elif arguments[i] == "-I":
                 # -I include
                 normalized_include = str((working_dir / arguments[i + 1]).resolve())
-                result.extend(['-I', normalized_include])
+                result.extend(["-I", normalized_include])
                 i += 1
             elif arguments[i] in ("-isystem", "-iquote"):
                 # -isystem or -iquote

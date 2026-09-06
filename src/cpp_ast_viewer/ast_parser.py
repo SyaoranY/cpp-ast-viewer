@@ -25,12 +25,15 @@ class AstParser:
         result = []
         for item in self._compile_database.arguments:
             logger.info("Parsing TU: %s", item.source)
-            tu = self._index.parse(str(item.source), args=item.args)
-            self._print_tu_diagnostics(tu)
-            includes = [Path(include.include.name).resolve() for include in tu.get_includes()]
-            includes = list(set(includes))
-            includes.sort(key=lambda header: self._header_sort_key(item.source, header))
-            result.append(AstTuInfo(source=item.source, tu=tu, includes=includes))
+            try:
+                tu = self._index.parse(str(item.source), args=item.args)
+                self._print_tu_diagnostics(tu)
+                includes = [Path(include.include.name).resolve() for include in tu.get_includes()]
+                includes = list(set(includes))
+                includes.sort(key=lambda header: self._header_sort_key(item.source, header))
+                result.append(AstTuInfo(source=item.source, tu=tu, includes=includes))
+            except Exception:
+                logger.exception("Failed to parse TU: %s", item.source)
         return result
 
     def _print_tu_diagnostics(self, tu: cindex.TranslationUnit):

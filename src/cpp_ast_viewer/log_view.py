@@ -29,7 +29,7 @@ class LogView(QPlainTextEdit):
         self.setReadOnly(True)
 
         self.log_handler = LogHandler(
-            fmt="%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S", log_level=logging.DEBUG, slot=self._log
+            fmt="%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S", log_level=logging.INFO, slot=self._log
         )
 
     def new_session(self, title="Reload"):

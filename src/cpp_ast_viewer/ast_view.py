@@ -40,7 +40,7 @@ class AstTreeView(QTreeView):
 
     def reset_all(self):
         self._parent_dict_cache = {}
-        self._model.removeRows(0, self._model.rowCount())
+        self.reset_view()
 
     def reset_view(self):
         self._model.removeRows(0, self._model.rowCount())
@@ -90,8 +90,7 @@ class AstTreeView(QTreeView):
     def _on_clicked(self, index):
         item = self._model.itemFromIndex(index)
         cursor = item.data().cursor
-        if cursor is not None:
-            self.cursor_selected.emit(cursor)
+        self.cursor_selected.emit(cursor)
 
     def _on_expanded(self, index):
         item = self._model.itemFromIndex(index)
@@ -184,8 +183,7 @@ class AstView(QWidget):
 
     def select_at(self, path, line, column):
         cursor = self.ast_tree_view.select_at(path, line, column)
-        if cursor is not None:
-            self.ast_details_view.show_cursor(cursor)
+        self.ast_details_view.show_cursor(cursor)
         return cursor
 
     def _on_cursor_selected(self, cursor: Cursor):

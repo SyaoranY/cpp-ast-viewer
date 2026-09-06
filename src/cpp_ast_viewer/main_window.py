@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from PySide6.QtCore import Qt
@@ -8,12 +9,18 @@ from cpp_ast_viewer.file_panel import FilePanel
 from cpp_ast_viewer.log_view import LogView
 from cpp_ast_viewer.source_view import SourceView
 
+logger = logging.getLogger(__name__)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self._init_menu_bar()
         self._init_main_component()
+        self._init_layout()
+
+        logger.info("Welcome to cpp-ast-viewer!")
+        logger.info("Open a compile_commands.json file to get started.")
 
     def _init_menu_bar(self):
         menu_bar = self.menuBar()
@@ -27,8 +34,6 @@ class MainWindow(QMainWindow):
         self._source_view = SourceView()
         self._ast_view = AstView()
         self._log_view = LogView()
-
-        self._init_layout()
 
         self._file_panel.tu_selected.connect(self._on_tu_selected)
         self._file_panel.file_selected.connect(self._on_file_selected)

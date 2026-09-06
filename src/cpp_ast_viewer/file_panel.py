@@ -91,9 +91,10 @@ class FilePanel(QWidget):
             parent = parent.parent()
 
     def load_compile_command_json(self, file_path: Path):
-        logger.debug(f"load compile_command.json {file_path}")
+        logger.info("Loading compile_commands: %s", file_path)
         ast_parser = AstParser(file_path)
         tu_infos = ast_parser.get_tu_infos()
+        logger.info("Loaded %d translation units", len(tu_infos))
         self._load_transition_units(tu_infos)
 
     @staticmethod
