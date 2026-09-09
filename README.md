@@ -1,5 +1,12 @@
 # cpp-ast-viewer
 
+![Python](https://img.shields.io/badge/Python-%3E%3D3.10-blue.svg)
+![PySide6](https://img.shields.io/badge/GUI-PySide6-green.svg)
+![libclang](https://img.shields.io/badge/parser-libclang-orange.svg)
+![AST](https://img.shields.io/badge/C%2B%2B-AST-blueviolet.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/SyaoranY/cpp-ast-viewer)](https://github.com/SyaoranY/cpp-ast-viewer/releases)
+
 An interactive C++ AST viewer built with Python, PySide6, and libclang.
 
 `cpp-ast-viewer` visualizes the Clang AST of a C++ project together with its source code. It uses the project's `compile_commands.json` to parse translation units with their actual compilation arguments and provides interactive navigation between source code and AST nodes.
